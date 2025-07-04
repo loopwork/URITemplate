@@ -841,3 +841,77 @@ struct PerformanceTests {
         #expect(result.components(separatedBy: ",").count == 100)
     }
 }
+
+// MARK: -
+
+@Suite("Template Introspection Tests")
+struct TemplateIntrospectionTests {
+
+    @Test("Simple variable extraction")
+    func simpleVariableExtraction() throws {
+        let template = try URITemplate("{var}")
+        let variables = template.variables
+        #expect(variables == ["var"])
+    }
+
+    @Test("Multiple variables extraction")
+    func multipleVariablesExtraction() throws {
+        let template = try URITemplate("{x,y,z}")
+        let variables = template.variables
+        #expect(variables == ["x", "y", "z"])
+    }
+
+    @Test("Variables with different operators")
+    func variablesWithDifferentOperators() throws {
+        let template = try URITemplate(
+            "{var}{+reserved}{#fragment}{.label}{/path}{;pathStyle}{?query}{&continuation}")
+        let variables = template.variables
+        #expect(
+            variables == [
+                "var", "reserved", "fragment", "label", "path", "pathStyle", "query",
+                "continuation",
+            ])
+    }
+
+    @Test("Variables with prefix modifiers")
+    func variablesWithPrefixModifiers() throws {
+        let template = try URITemplate("{var:3}{name:10}")
+        let variables = template.variables
+        #expect(variables == ["var", "name"])
+    }
+
+    @Test("Variables with explode modifier")
+    func variablesWithExplodeModifier() throws {
+        let template = try URITemplate("{var*}{list*}")
+        let variables = template.variables
+        #expect(variables == ["var", "list"])
+    }
+
+    @Test("Complex template with mixed operators and modifiers")
+    func complexTemplateWithMixedOperatorsAndModifiers() throws {
+        let template = try URITemplate("https://api.example.com{/path*}{?query,limit:10,exploded*}")
+        let variables = template.variables
+        #expect(variables == ["path", "query", "limit", "exploded"])
+    }
+
+    @Test("Template with literals only")
+    func templateWithLiteralsOnly() throws {
+        let template = try URITemplate("https://api.example.com/static/path")
+        let variables = template.variables
+        #expect(variables.isEmpty)
+    }
+
+    @Test("Template with duplicated variable names")
+    func templateWithDuplicatedVariableNames() throws {
+        let template = try URITemplate("{var}/{var}")
+        let variables = template.variables
+        #expect(variables == ["var", "var"])
+    }
+
+    @Test("Empty template")
+    func emptyTemplate() throws {
+        let template = try URITemplate("")
+        let variables = template.variables
+        #expect(variables.isEmpty)
+    }
+}

@@ -22,6 +22,18 @@ public struct URITemplate: Sendable {
             }
         }.joined()
     }
+
+    /// Get all variable names used in this template
+    public var variables: [String] {
+        components.flatMap { component -> [String] in
+            switch component {
+            case .literal:
+                return []
+            case .expression(let expr):
+                return expr.variables.map(\.name)
+            }
+        }
+    }
 }
 
 // MARK: - Component Types
