@@ -122,6 +122,20 @@ let result = template.expand(with: ["tags": ["clean", "robust"]])
 // Result: "/search?tags=clean&tags=robust"
 ```
 
+### Template Introspection
+
+```swift
+// Get all variable names from a template
+let template = try URITemplate("https://api.example.com/users/{id}/posts{?limit,offset}")
+let variables = template.variables
+// Result: ["id", "limit", "offset"]
+
+// Works with all operators and modifiers
+let template = try URITemplate("{name:3}{+path}{?query*}")
+let variables = template.variables
+// Result: ["name", "path", "query"]
+```
+
 ### Error Handling
 
 ```swift
